@@ -1,18 +1,21 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { HealthResponse } from '../models/health';
 import { Observable } from 'rxjs';
-
 @Injectable({
   providedIn: 'root',
 })
-export class HealthService {
-  private apiUrl = 'http://127.0.0.1:8000/api/health-check';
+export class Health {
+  private baseUrl = 'http://localhost:8000';
 
   constructor(private http: HttpClient) {}
 
-  getHealthCheck(status: 'normal' | 'warning') {
-    return this.http.get<any>(
-      `http://127.0.0.1:8000/api/health-check?status=${status}`
-    );
+  getHealthCheck() {
+    return this.http.get<HealthResponse>(this.baseUrl, {
+      withCredentials: true,
+    });
+  }
+   getLatestImage(): Observable<any> {
+    return this.http.get<any>('http://localhost:8000/images/latest');
   }
 }
