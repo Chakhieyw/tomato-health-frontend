@@ -1,10 +1,13 @@
+/* ===============================
+   PAGE & CONTAINER
+   =============================== */
 .page {
   height: 100vh;
   background: #f4f6f8;
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
+  overflow: hidden; // ❌ no scrollbar
 }
 
 .container {
@@ -12,71 +15,129 @@
   height: 92%;
   display: grid;
   grid-template-columns: 38% 62%;
-  gap: 24px;
+  gap: 28px; // pixel tuning
 }
 
-/* LEFT */
+/* ===============================
+   LEFT PANEL
+   =============================== */
 .left-panel {
   background: #ffffff;
-  border-radius: 22px;
-  padding: 24px;
+  border-radius: 24px;
+  padding: 26px;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.05);
 }
 
 .header {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.header h2 {
+  font-size: 20px;
+  font-weight: 700;
 }
 
 .icon-circle {
-  width: 54px;
-  height: 54px;
-}
-
-.image-box {
-  flex: 1;
+  width: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 20px 0;
+}
+
+.icon-circle svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* IMAGE */
+.image-box {
+  flex: 1;
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 24px 0;
 }
 
 .image-box img {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  border-radius: 18px;
+  border-radius: 20px;
+  background: #ffffff;
+  padding: 6px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
+/* BUTTON */
 .refresh {
   margin-top: auto;
   padding: 14px;
-  border-radius: 14px;
+  border-radius: 16px;
   border: none;
   background: #16a34a;
-  color: #fff;
+  color: #ffffff;
   font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-/* RIGHT */
+.refresh:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+}
+
+.refresh:active {
+  transform: scale(0.98);
+}
+
+/* ===============================
+   RIGHT PANEL
+   =============================== */
 .right-panel {
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
 
+/* ===============================
+   STATUS BOX (MAIN HERO)
+   =============================== */
 .status-box {
+  position: relative;
   background: #ffffff;
-  border-radius: 20px;
-  padding: 22px;
+  border-radius: 24px;
+  padding: 26px;
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 20px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.05);
+
+  /* smooth change animation */
+  animation: statusFade 0.35s ease;
 }
 
+@keyframes statusFade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* status accent */
 .status-box.warning {
   border-left: 6px solid #facc15;
 }
@@ -85,26 +146,74 @@
   border-left: 6px solid #22c55e;
 }
 
+/* ICON */
 .status-icon svg {
   width: 40px;
   height: 40px;
+  animation: iconPop 0.3s ease;
 }
 
+@keyframes iconPop {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* TEXT */
+.status-box h3 {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.status-box p {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* BADGE */
 .badge {
   display: inline-block;
-  margin-top: 6px;
-  padding: 4px 12px;
+  margin-top: 8px;
+  padding: 4px 14px;
   border-radius: 999px;
   font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
   background: #e5e7eb;
+  text-transform: uppercase;
 }
 
+/* ===============================
+   SECTION CARDS
+   =============================== */
 .section {
   background: #ffffff;
-  border-radius: 20px;
-  padding: 20px;
+  border-radius: 24px;
+  padding: 22px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.05);
 }
 
+.section h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+/* DISEASE */
+.danger {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+/* ===============================
+   TIME GRID
+   =============================== */
 .time-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -114,15 +223,23 @@
 
 .time-card {
   background: #f9fafb;
-  padding: 12px;
-  border-radius: 14px;
+  padding: 14px 16px;
+  border-radius: 16px;
 }
 
-.online {
-  color: #16a34a;
+.time-card label {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.time-card span {
+  display: block;
+  margin-top: 4px;
   font-weight: 600;
 }
 
-.danger {
-  color: #dc2626;
+/* SYSTEM STATUS */
+.online {
+  color: #16a34a;
+  font-weight: 600;
 }
