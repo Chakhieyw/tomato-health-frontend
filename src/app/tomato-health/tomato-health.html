@@ -13,6 +13,7 @@
           </svg>
         </div>
         <h2>Tomato health check</h2>
+        <button class="logout-btn" (click)="logout()">ออกจากระบบ</button>
       </header>
 
       <div class="image-box" *ngIf="d.image_url">
@@ -76,8 +77,13 @@
 
         <div class="time-grid">
           <div class="time-card">
-            <label>วันที่ตรวจ</label>
-            <span>{{ d.last_check }}</span>
+            <label>วันที่ปัจจุบัน</label>
+            <span>{{ currentDate }}</span>
+          </div>
+
+          <div class="time-card">
+            <label>เวลาปัจจุบัน</label>
+            <span>{{ currentTime }} น.</span>
           </div>
 
           <div class="time-card">
@@ -88,11 +94,6 @@
           <div class="time-card">
             <label>สถานะระบบ</label>
             <span class="online">{{ d.system_status }}</span>
-          </div>
-
-          <div class="time-card">
-            <label>การอัพเดท</label>
-            <span>ทุก 30 นาที</span>
           </div>
         </div>
       </section>

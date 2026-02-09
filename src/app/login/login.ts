@@ -18,11 +18,14 @@ export class Login {
 
   constructor(
     private authService: Auth,
-    private router: Router
+    private router: Router,
   ) {}
+
+  loading = false;
 
   login() {
     this.error = '';
+    this.loading = true;
 
     this.authService.login(this.username, this.password).subscribe({
       next: () => {
@@ -30,6 +33,7 @@ export class Login {
       },
       error: () => {
         this.error = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
+        this.loading = false;
       },
     });
   }

@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Health } from '../services/health';
 import { HealthResponse } from '../models/health';
+import { Router } from '@angular/router';
+import { Auth } from '../services/auth';
 
 @Component({
   selector: 'app-tomato-health',
@@ -13,11 +15,32 @@ import { HealthResponse } from '../models/health';
 export class TomatoHealth implements OnInit {
   data: (HealthResponse & { status: 'normal' | 'warning' }) | null = null;
   loading = false;
+  currentTime = '';
+  currentDate = '';
+  private timer: any;
 
-  constructor(private healthService: Health) {}
+  constructor(
+    private healthService: Health,
+    private authService: Auth,
+    private router: Router,
+  ) {}
 
   ngOnInit() {
     this.loadData();
+
+    this.updateDateTime();
+    setInterval(() => {
+      this.updateDateTime();
+    }, 1000);
+  }
+
+  updateDateTime() {
+    const now = new Date();
+    this.currentTime = now.toTimeString().slice(0, 8); // HH:mm:ss
+    this.currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
+  }
+  ngOnDestroy() {
+    clearInterval(this.timer);
   }
 
   loadData() {
@@ -44,4 +67,16 @@ export class TomatoHealth implements OnInit {
       },
     });
   }
+  logout() {
+  this.authService.logout().subscribe({
+    next: () => {
+      this.router.navigate(['/login']);
+    },
+    error: () => {
+      // fallback
+      this.router.navigate(['/login']);
+    },
+  });
+}
+
 }

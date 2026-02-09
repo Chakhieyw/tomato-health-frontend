@@ -1,19 +1,50 @@
-<div class="login-box">
-  <h2>Login</h2>
+<div class="login-page">
+  <div class="login-card">
+    <!-- HEADER -->
+    <div class="login-header">
+      <div class="logo">
+        <svg viewBox="0 0 64 64">
+          <circle cx="32" cy="36" r="22" fill="#22c55e" />
+          <path
+            d="M32 8c6 6 10 6 14 6-4 6-8 8-14 8s-10-2-14-8c4 0 8 0 14-6z"
+            fill="#15803d"
+          />
+        </svg>
+      </div>
+      <h2>Tomato Health</h2>
+      <p>เข้าสู่ระบบเพื่อดูข้อมูลการตรวจ</p>
+    </div>
 
-  <input
-    type="text"
-    placeholder="Username"
-    [(ngModel)]="username"
-  />
+    <!-- FORM -->
+    <form (ngSubmit)="login()" class="login-form">
+      <div class="form-group">
+        <label>Username</label>
+        <input
+          type="text"
+          [(ngModel)]="username"
+          name="username"
+          placeholder="กรอกชื่อผู้ใช้"
+          required
+        />
+      </div>
 
-  <input
-    type="password"
-    placeholder="Password"
-    [(ngModel)]="password"
-  />
+      <div class="form-group">
+        <label>Password</label>
+        <input
+          type="password"
+          [(ngModel)]="password"
+          name="password"
+          placeholder="กรอกรหัสผ่าน"
+          required
+        />
+      </div>
 
-  <button (click)="login()">Login</button>
+      <!-- ERROR -->
+      <div class="error" *ngIf="error">{{ error }}</div>
 
-  <p class="error" *ngIf="error">{{ error }}</p>
+      <button type="submit" class="login-btn" [disabled]="loading">
+        {{ loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ' }}
+      </button>
+    </form>
+  </div>
 </div>
