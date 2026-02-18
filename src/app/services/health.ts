@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { HealthResponse } from '../models/health';
 import { Observable } from 'rxjs';
+import { AIResultResponse } from '../models/ai-result';
 @Injectable({
   providedIn: 'root',
 })
@@ -10,12 +11,13 @@ export class Health {
 
   constructor(private http: HttpClient) {}
 
-  getHealthCheck() {
-    return this.http.get<HealthResponse>(this.baseUrl, {
+  getLatestAIResult() {
+    return this.http.get<any>('http://localhost:8000/ai-result/latest', {
       withCredentials: true,
     });
   }
-   getLatestImage(): Observable<any> {
+
+  getLatestImage(): Observable<any> {
     return this.http.get<any>('http://localhost:8000/images/latest');
   }
 }

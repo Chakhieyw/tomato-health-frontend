@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Health } from '../services/health';
 import { HealthResponse } from '../models/health';
@@ -12,12 +12,15 @@ import { Auth } from '../services/auth';
   templateUrl: './tomato-health.html',
   styleUrls: ['./tomato-health.scss'],
 })
-export class TomatoHealth implements OnInit {
+export class TomatoHealth implements OnInit, OnDestroy {
   data: (HealthResponse & { status: 'normal' | 'warning' }) | null = null;
+
   loading = false;
   currentTime = '';
   currentDate = '';
-  private timer: any;
+
+  private clockTimer: any;
+  private autoRefreshTimer: any;
 
   constructor(
     private healthService: Health,
@@ -28,55 +31,94 @@ export class TomatoHealth implements OnInit {
   ngOnInit() {
     this.loadData();
 
+    // ⏰ real-time clock
     this.updateDateTime();
-    setInterval(() => {
+    this.clockTimer = setInterval(() => {
       this.updateDateTime();
     }, 1000);
+
+    // 🔄 auto refresh every 30 minutes
+    this.autoRefreshTimer = setInterval(
+      () => {
+        this.loadData();
+      },
+      30 * 60 * 1000,
+    );
+  }
+
+  ngOnDestroy() {
+    if (this.clockTimer) clearInterval(this.clockTimer);
+    if (this.autoRefreshTimer) clearInterval(this.autoRefreshTimer);
   }
 
   updateDateTime() {
     const now = new Date();
-    this.currentTime = now.toTimeString().slice(0, 8); // HH:mm:ss
-    this.currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
-  }
-  ngOnDestroy() {
-    clearInterval(this.timer);
+
+    // ✅ DD/MM/YYYY
+    this.currentDate =
+      now.getDate().toString().padStart(2, '0') +
+      '/' +
+      (now.getMonth() + 1).toString().padStart(2, '0') +
+      '/' +
+      now.getFullYear();
+
+    this.currentTime = now.toTimeString().slice(0, 8);
   }
 
   loadData() {
     this.loading = true;
 
     this.healthService.getLatestImage().subscribe({
-      next: (res: any) => {
-        console.log('API RESPONSE =', res);
-        console.log('IMAGE URL =', res.image_url);
+      next: (imageRes: any) => {
+        this.healthService.getLatestAIResult().subscribe({
+          next: (aiRes: any) => {
+            const createdAt = aiRes?.created_at
+              ? new Date(aiRes.created_at)
+              : new Date();
 
-        const createdAt = res.created_at
-          ? new Date(res.created_at)
-          : new Date();
+            const formattedDate = createdAt.toLocaleDateString('en-GB'); // DD/MM/YYYY
+            const formattedTime = createdAt.toTimeString().slice(0, 8);
 
-        this.data = {
-          image_url: res.image_url,
-          last_check: createdAt.toISOString().split('T')[0],
-          time: createdAt.toTimeString().slice(0, 8),
-          system_status: 'ONLINE',
-          disease: null,
-          disease_th: null,
-          status: 'normal',
-        };
+            // 🔥 logic ตรวจ Healthy
+            const hasDisease =
+              aiRes?.disease_name &&
+              aiRes.disease_name.toLowerCase() !== 'healthy';
+
+            this.data = {
+              image_url: imageRes.image_url,
+
+              // disease
+              disease: aiRes?.disease_name ?? null,
+              disease_th: null,
+
+              // time
+              last_check: formattedDate,
+              time: formattedTime,
+              system_status: 'ONLINE',
+
+              // 🔥 status logic
+              status: hasDisease ? 'warning' : 'normal',
+            };
+
+            this.loading = false;
+          },
+          error: () => {
+            console.error('AI result error');
+            this.loading = false;
+          },
+        });
+      },
+      error: () => {
+        console.error('Image API error');
+        this.loading = false;
       },
     });
   }
-  logout() {
-  this.authService.logout().subscribe({
-    next: () => {
-      this.router.navigate(['/login']);
-    },
-    error: () => {
-      // fallback
-      this.router.navigate(['/login']);
-    },
-  });
-}
 
+  logout() {
+    this.authService.logout().subscribe({
+      next: () => this.router.navigate(['/login']),
+      error: () => this.router.navigate(['/login']),
+    });
+  }
 }
