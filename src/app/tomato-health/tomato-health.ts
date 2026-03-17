@@ -31,14 +31,12 @@ export class TomatoHealth implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadData();
-
-    // ⏰ real-time clock
     this.updateDateTime();
     this.clockTimer = setInterval(() => {
       this.updateDateTime();
     }, 1000);
 
-    // 🔄 auto refresh ทุก 30 นาที
+    //  auto refresh ทุก 30 นาที
     this.autoRefreshTimer = setInterval(
       () => {
         this.loadData();
@@ -65,7 +63,6 @@ export class TomatoHealth implements OnInit, OnDestroy {
     this.currentTime = now.toTimeString().slice(0, 8);
   }
 
-  // 🔥 โหลดข้อมูล
   loadData() {
     this.loading = true;
 
@@ -74,7 +71,6 @@ export class TomatoHealth implements OnInit, OnDestroy {
       ai: this.healthService.getLatestAIResult(),
     }).subscribe({
       next: ({ image, ai }: any) => {
-        // 🔥 แก้ timezone ตรงนี้
         const createdAt = ai?.created_at
           ? new Date(ai.created_at + 'Z')
           : new Date();
