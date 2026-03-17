@@ -4,6 +4,7 @@ import { Health } from '../services/health';
 import { HealthResponse } from '../models/health';
 import { Router } from '@angular/router';
 import { Auth } from '../services/auth';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-tomato-health',
@@ -37,12 +38,12 @@ export class TomatoHealth implements OnInit, OnDestroy {
       this.updateDateTime();
     }, 1000);
 
-    // 🔄 auto refresh every 30 minutes
+
     this.autoRefreshTimer = setInterval(
       () => {
         this.loadData();
       },
-      30 * 60 * 1000,
+      30 * 60 * 1000, // ทุก 30 นาที
     );
   }
 
@@ -54,7 +55,6 @@ export class TomatoHealth implements OnInit, OnDestroy {
   updateDateTime() {
     const now = new Date();
 
-    // ✅ DD/MM/YYYY
     this.currentDate =
       now.getDate().toString().padStart(2, '0') +
       '/' +
@@ -65,54 +65,51 @@ export class TomatoHealth implements OnInit, OnDestroy {
     this.currentTime = now.toTimeString().slice(0, 8);
   }
 
+  // 🔥 โหลดข้อมูล (แก้แล้ว)
   loadData() {
     this.loading = true;
 
-    this.healthService.getLatestImage().subscribe({
-      next: (imageRes: any) => {
-        this.healthService.getLatestAIResult().subscribe({
-          next: (aiRes: any) => {
-            const createdAt = aiRes?.created_at
-              ? new Date(aiRes.created_at)
-              : new Date();
+    forkJoin({
+      image: this.healthService.getLatestImage(),
+      ai: this.healthService.getLatestAIResult(),
+    }).subscribe({
+      next: ({ image, ai }: any) => {
+        const createdAt = ai?.created_at ? new Date(ai.created_at) : new Date();
 
-            const formattedDate = createdAt.toLocaleDateString('en-GB'); // DD/MM/YYYY
-            const formattedTime = createdAt.toTimeString().slice(0, 8);
+        const formattedDate = createdAt.toLocaleDateString('en-GB');
+        const formattedTime = createdAt.toTimeString().slice(0, 8);
 
-            // 🔥 logic ตรวจ Healthy
-            const hasDisease =
-              aiRes?.disease_name &&
-              aiRes.disease_name.toLowerCase() !== 'healthy';
+        const hasDisease =
+          ai?.disease_name && ai.disease_name.toLowerCase() !== 'healthy';
 
-            this.data = {
-              image_url: imageRes.image_url,
+        this.data = {
+          image_url: image.image_url,
 
-              // disease
-              disease: aiRes?.disease_name ?? null,
-              disease_th: null,
+          // disease
+          disease: ai?.disease_name ?? null,
+          disease_th: null,
 
-              // time
-              last_check: formattedDate,
-              time: formattedTime,
-              system_status: 'ONLINE',
+          // time
+          last_check: formattedDate,
+          time: formattedTime,
+          system_status: 'ONLINE',
 
-              // 🔥 status logic
-              status: hasDisease ? 'warning' : 'normal',
-            };
+          // status
+          status: hasDisease ? 'warning' : 'normal',
+        };
 
-            this.loading = false;
-          },
-          error: () => {
-            console.error('AI result error');
-            this.loading = false;
-          },
-        });
+        this.loading = false;
       },
       error: () => {
-        console.error('Image API error');
+        console.error('โหลดข้อมูลผิดพลาด');
         this.loading = false;
       },
     });
+  }
+
+  // 🔥 ปุ่มอัปเดต
+  onRefreshClick() {
+    this.loadData();
   }
 
   logout() {
