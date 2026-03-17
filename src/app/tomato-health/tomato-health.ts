@@ -38,12 +38,12 @@ export class TomatoHealth implements OnInit, OnDestroy {
       this.updateDateTime();
     }, 1000);
 
-
+    // 🔄 auto refresh ทุก 30 นาที
     this.autoRefreshTimer = setInterval(
       () => {
         this.loadData();
       },
-      30 * 60 * 1000, // ทุก 30 นาที
+      30 * 60 * 1000,
     );
   }
 
@@ -65,7 +65,7 @@ export class TomatoHealth implements OnInit, OnDestroy {
     this.currentTime = now.toTimeString().slice(0, 8);
   }
 
-  // 🔥 โหลดข้อมูล (แก้แล้ว)
+  // 🔥 โหลดข้อมูล
   loadData() {
     this.loading = true;
 
@@ -74,7 +74,10 @@ export class TomatoHealth implements OnInit, OnDestroy {
       ai: this.healthService.getLatestAIResult(),
     }).subscribe({
       next: ({ image, ai }: any) => {
-        const createdAt = ai?.created_at ? new Date(ai.created_at) : new Date();
+        // 🔥 แก้ timezone ตรงนี้
+        const createdAt = ai?.created_at
+          ? new Date(ai.created_at + 'Z')
+          : new Date();
 
         const formattedDate = createdAt.toLocaleDateString('en-GB');
         const formattedTime = createdAt.toTimeString().slice(0, 8);
@@ -107,7 +110,7 @@ export class TomatoHealth implements OnInit, OnDestroy {
     });
   }
 
-  // 🔥 ปุ่มอัปเดต
+  // 🔥 ปุ่ม refresh
   onRefreshClick() {
     this.loadData();
   }
