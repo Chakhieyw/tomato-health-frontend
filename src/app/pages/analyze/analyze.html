@@ -1,0 +1,163 @@
+<div class="dashboard">
+
+  <!-- HEADER BAR -->
+  <div class="header-bar">
+    <div class="header-left">
+      <mat-icon class="pulse-icon">radar</mat-icon>
+      <span class="header-title">AI Scan Monitor</span>
+    </div>
+    <div class="header-right">
+      <span class="countdown-label" *ngIf="!loading">
+        <mat-icon>update</mat-icon>
+        อัพเดทใน {{ nextRefreshIn }}
+      </span>
+      <button mat-stroked-button
+              class="refresh-btn"
+              [disabled]="loading"
+              [matTooltip]="'อัพเดทข้อมูลทันที'"
+              (click)="manualRefresh()">
+        <mat-icon [class.spin]="loading">refresh</mat-icon>
+        {{ loading ? 'กำลังโหลด...' : 'รีเฟรช' }}
+      </button>
+      <div class="status-chip" [ngClass]="loading ? 'scanning' : 'live'">
+        <span class="status-dot"></span>
+        {{ loading ? 'Scanning...' : 'Live' }}
+      </div>
+      <button mat-stroked-button class="logout-btn" [matTooltip]="'ออกจากระบบ'" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        ออกจากระบบ
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- LEFT: IMAGE PANEL -->
+    <mat-card class="image-panel" appearance="outlined">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="panel-icon">photo_camera</mat-icon>
+        <mat-card-title>Latest Scan</mat-card-title>
+        <mat-card-subtitle>Real-time capture</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content class="image-content">
+        <div *ngIf="loading" class="loading-overlay">
+          <mat-spinner diameter="52" color="accent"></mat-spinner>
+          <span class="loading-label">Fetching image...</span>
+        </div>
+        <div *ngIf="!loading && imageUrl" class="img-wrapper">
+          <img [src]="imageUrl" class="scan-image" />
+          <div class="img-badge">
+            <mat-icon>verified</mat-icon> Captured
+          </div>
+        </div>
+        <div *ngIf="!loading && !imageUrl" class="no-image">
+          <mat-icon>image_not_supported</mat-icon>
+          <span>No image available</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+
+      <!-- RESULT CARD -->
+      <mat-card *ngIf="result" class="result-card" appearance="outlined">
+        <div class="result-inner">
+          <div class="result-label-group">
+            <mat-icon class="result-icon">auto_awesome</mat-icon>
+            <div>
+              <div class="result-label">{{ result.disease_name }}</div>
+              <div class="result-sub">AI Detection Result</div>
+            </div>
+          </div>
+          <div class="confidence-group">
+            <div class="confidence-value">{{ (result.confidence * 100).toFixed(1) }}<span class="pct">%</span></div>
+            <div class="confidence-bar-track">
+              <div class="confidence-bar-fill" [style.width.%]="result.confidence * 100"></div>
+            </div>
+            <div class="confidence-label">Confidence</div>
+          </div>
+        </div>
+        <div *ngIf="result.recommendation" class="recommendation">
+          <mat-icon>info_outline</mat-icon>
+          <span>{{ result.recommendation }}</span>
+        </div>
+      </mat-card>
+
+      <!-- INFO TILES -->
+      <div class="info-grid">
+
+        <div class="info-tile">
+          <div class="tile-icon-wrap accent-blue">
+            <mat-icon>calendar_today</mat-icon>
+          </div>
+          <div class="tile-body">
+            <div class="tile-label">Date</div>
+            <div class="tile-value">{{ date }}</div>
+          </div>
+        </div>
+
+        <div class="info-tile">
+          <div class="tile-icon-wrap accent-purple">
+            <mat-icon>schedule</mat-icon>
+          </div>
+          <div class="tile-body">
+            <div class="tile-label">Time</div>
+            <div class="tile-value">{{ time }}</div>
+          </div>
+        </div>
+
+        <div class="info-tile">
+          <div class="tile-icon-wrap accent-orange">
+            <mat-icon>speed</mat-icon>
+          </div>
+          <div class="tile-body">
+            <div class="tile-label">Scan Time</div>
+            <div class="tile-value">{{ scanTime }}</div>
+          </div>
+        </div>
+
+        <div class="info-tile">
+          <div class="tile-icon-wrap accent-green">
+            <mat-icon>wifi</mat-icon>
+          </div>
+          <div class="tile-body">
+            <div class="tile-label">Status</div>
+            <div class="tile-value online">ONLINE</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SUMMARY CARD -->
+      <mat-card class="summary-card" appearance="outlined">
+        <div class="summary-header">
+          <mat-icon>insights</mat-icon>
+          <span>สรุปผลการวิเคราะห์</span>
+        </div>
+        <div class="summary-body">
+          <div class="summary-row">
+            <span class="summary-key">โรคที่ตรวจพบ</span>
+            <span class="summary-val">{{ result?.disease_name ?? '-' }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">ความมั่นใจ</span>
+            <span class="summary-val">{{ result ? (result.confidence * 100).toFixed(1) + '%' : '-' }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">วันที่สแกน</span>
+            <span class="summary-val">{{ date }} {{ time }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">คำแนะนำ</span>
+            <span class="summary-val rec">{{ result?.recommendation ?? '-' }}</span>
+          </div>
+        </div>
+      </mat-card>
+
+    </div>
+  </div>
+
+</div>
