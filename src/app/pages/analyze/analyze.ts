@@ -112,8 +112,13 @@ export class Analyze implements OnInit, OnDestroy {
         const createdAt = res?.created_at
           ? new Date(res.created_at)
           : new Date();
-        this.date = createdAt.toLocaleDateString();
-        this.time = createdAt.toLocaleTimeString();
+        const now = new Date();
+        this.date = now.toLocaleDateString('th-TH', {
+          year: 'numeric',
+          month: '2-digit',
+          day: 'numeric',
+        });
+        this.time = now.toLocaleTimeString('th-TH');
 
         this.scanTime = Date.now() - start + ' ms';
         this.loading = false;
