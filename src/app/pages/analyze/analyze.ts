@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Health } from '../../services/health';
+import { Auth } from '../../services/auth';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -41,8 +42,14 @@ export class Analyze implements OnInit, OnDestroy {
 
   constructor(
     private api: Health,
+    private auth: Auth,
     private router: Router,
   ) {}
+
+  get resultThemeClass(): string {
+    const name = this.result?.disease_name?.toLowerCase() ?? '';
+    return name === 'healthy' ? 'healthy' : 'disease';
+  }
 
   ngOnInit(): void {
     this.loadData();
@@ -64,8 +71,10 @@ export class Analyze implements OnInit, OnDestroy {
   logout(): void {
     clearTimeout(this.autoRefreshTimer);
     clearInterval(this.countdownTimer);
-    localStorage.removeItem('token'); // ลบ token ถ้ามี
-    this.router.navigate(['/login']);
+    this.auth.logout().subscribe({
+      next: () => this.router.navigate(['/login']),
+      error: () => this.router.navigate(['/login']),
+    });
   }
 
   private scheduleAutoRefresh(): void {

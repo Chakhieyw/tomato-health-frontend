@@ -1,14 +1,57 @@
 <div class="login-page">
+  <div class="leaf leaf-1"></div>
+  <div class="leaf leaf-2"></div>
+
   <div class="login-card">
     <!-- HEADER -->
     <div class="login-header">
       <div class="logo">
-        <svg viewBox="0 0 64 64">
-          <circle cx="32" cy="36" r="22" fill="#22c55e" />
+        <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="soil" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#a16207" />
+              <stop offset="100%" stop-color="#713f12" />
+            </linearGradient>
+          </defs>
+          <rect x="16" y="60" width="48" height="12" rx="6" fill="url(#soil)" />
           <path
-            d="M32 8c6 6 10 6 14 6-4 6-8 8-14 8s-10-2-14-8c4 0 8 0 14-6z"
-            fill="#15803d"
+            d="M40 60 Q40 48 40 36"
+            stroke="#15803d"
+            stroke-width="3.5"
+            stroke-linecap="round"
+            fill="none"
           />
+          <path
+            d="M40 44 C38 36 28 30 22 34 C18 38 22 46 32 46 Z"
+            fill="#22c55e"
+          />
+          <path
+            d="M40 44 C36 40 30 38 26 40"
+            stroke="#15803d"
+            stroke-width="1.3"
+            fill="none"
+            stroke-linecap="round"
+          />
+          <path
+            d="M40 38 C42 30 52 24 58 28 C62 32 58 40 48 40 Z"
+            fill="#4ade80"
+          />
+          <path
+            d="M40 38 C44 34 50 32 54 34"
+            stroke="#15803d"
+            stroke-width="1.3"
+            fill="none"
+            stroke-linecap="round"
+          />
+          <path
+            d="M40 36 C36 26 28 22 26 28 C24 34 32 38 40 36Z"
+            fill="#16a34a"
+          />
+          <path
+            d="M40 36 C44 26 52 22 54 28 C56 34 48 38 40 36Z"
+            fill="#16a34a"
+          />
+          <circle cx="40" cy="34" r="3" fill="#4ade80" />
         </svg>
       </div>
       <h2>Tomato Health</h2>
@@ -16,33 +59,63 @@
     </div>
 
     <!-- FORM -->
-    <form (ngSubmit)="login()" class="login-form">
-      <div class="form-group">
-        <label>Username</label>
+    <form (ngSubmit)="login()" class="login-form" autocomplete="off">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Username</mat-label>
+        <mat-icon matPrefix>person_outline</mat-icon>
         <input
+          matInput
           type="text"
           [(ngModel)]="username"
           name="username"
           placeholder="กรอกชื่อผู้ใช้"
+          autocomplete="off"
           required
         />
-      </div>
+      </mat-form-field>
 
-      <div class="form-group">
-        <label>Password</label>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Password</mat-label>
+        <mat-icon matPrefix>lock_outline</mat-icon>
         <input
-          type="password"
+          matInput
+          [type]="showPassword ? 'text' : 'password'"
           [(ngModel)]="password"
           name="password"
           placeholder="กรอกรหัสผ่าน"
+          autocomplete="new-password"
           required
         />
-      </div>
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          (click)="showPassword = !showPassword"
+        >
+          <mat-icon
+            >{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon
+          >
+        </button>
+      </mat-form-field>
 
       <!-- ERROR -->
-      <div class="error" *ngIf="error">{{ error }}</div>
+      <div class="error-box" *ngIf="error">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ error }}</span>
+      </div>
 
-      <button type="submit" class="login-btn" [disabled]="loading">
+      <button
+        mat-flat-button
+        class="login-btn"
+        type="submit"
+        [disabled]="loading"
+      >
+        <mat-spinner
+          *ngIf="loading"
+          diameter="18"
+          class="btn-spinner"
+        ></mat-spinner>
+        <mat-icon *ngIf="!loading">login</mat-icon>
         {{ loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ' }}
       </button>
     </form>

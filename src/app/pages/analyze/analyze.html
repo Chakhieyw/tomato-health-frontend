@@ -1,5 +1,4 @@
 <div class="dashboard">
-
   <!-- HEADER BAR -->
   <div class="header-bar">
     <div class="header-left">
@@ -11,11 +10,13 @@
         <mat-icon>update</mat-icon>
         อัพเดทใน {{ nextRefreshIn }}
       </span>
-      <button mat-stroked-button
-              class="refresh-btn"
-              [disabled]="loading"
-              [matTooltip]="'อัพเดทข้อมูลทันที'"
-              (click)="manualRefresh()">
+      <button
+        mat-stroked-button
+        class="refresh-btn"
+        [disabled]="loading"
+        [matTooltip]="'อัพเดทข้อมูลทันที'"
+        (click)="manualRefresh()"
+      >
         <mat-icon [class.spin]="loading">refresh</mat-icon>
         {{ loading ? 'กำลังโหลด...' : 'รีเฟรช' }}
       </button>
@@ -23,7 +24,12 @@
         <span class="status-dot"></span>
         {{ loading ? 'Scanning...' : 'Live' }}
       </div>
-      <button mat-stroked-button class="logout-btn" [matTooltip]="'ออกจากระบบ'" (click)="logout()">
+      <button
+        mat-stroked-button
+        class="logout-btn"
+        [matTooltip]="'ออกจากระบบ'"
+        (click)="logout()"
+      >
         <mat-icon>logout</mat-icon>
         ออกจากระบบ
       </button>
@@ -32,7 +38,6 @@
 
   <!-- MAIN GRID -->
   <div class="main-grid">
-
     <!-- LEFT: IMAGE PANEL -->
     <mat-card class="image-panel" appearance="outlined">
       <mat-card-header>
@@ -48,9 +53,7 @@
         </div>
         <div *ngIf="!loading && imageUrl" class="img-wrapper">
           <img [src]="imageUrl" class="scan-image" />
-          <div class="img-badge">
-            <mat-icon>verified</mat-icon> Captured
-          </div>
+          <div class="img-badge"><mat-icon>verified</mat-icon> Captured</div>
         </div>
         <div *ngIf="!loading && !imageUrl" class="no-image">
           <mat-icon>image_not_supported</mat-icon>
@@ -61,9 +64,8 @@
 
     <!-- RIGHT PANEL -->
     <div class="right-panel">
-
       <!-- RESULT CARD -->
-      <mat-card *ngIf="result" class="result-card" appearance="outlined">
+      <mat-card *ngIf="result" class="result-card" [ngClass]="resultThemeClass">
         <div class="result-inner">
           <div class="result-label-group">
             <mat-icon class="result-icon">auto_awesome</mat-icon>
@@ -73,9 +75,16 @@
             </div>
           </div>
           <div class="confidence-group">
-            <div class="confidence-value">{{ (result.confidence * 100).toFixed(1) }}<span class="pct">%</span></div>
+            <div class="confidence-value">
+              {{ (result.confidence * 100).toFixed(1) }}<span class="pct"
+                >%</span
+              >
+            </div>
             <div class="confidence-bar-track">
-              <div class="confidence-bar-fill" [style.width.%]="result.confidence * 100"></div>
+              <div
+                class="confidence-bar-fill"
+                [style.width.%]="result.confidence * 100"
+              ></div>
             </div>
             <div class="confidence-label">Confidence</div>
           </div>
@@ -88,7 +97,6 @@
 
       <!-- INFO TILES -->
       <div class="info-grid">
-
         <div class="info-tile">
           <div class="tile-icon-wrap accent-blue">
             <mat-icon>calendar_today</mat-icon>
@@ -128,7 +136,6 @@
             <div class="tile-value online">ONLINE</div>
           </div>
         </div>
-
       </div>
 
       <!-- SUMMARY CARD -->
@@ -144,7 +151,10 @@
           </div>
           <div class="summary-row">
             <span class="summary-key">ความมั่นใจ</span>
-            <span class="summary-val">{{ result ? (result.confidence * 100).toFixed(1) + '%' : '-' }}</span>
+            <span class="summary-val"
+              >{{ result ? (result.confidence * 100).toFixed(1) + '%' : '-'
+              }}</span
+            >
           </div>
           <div class="summary-row">
             <span class="summary-key">วันที่สแกน</span>
@@ -152,12 +162,12 @@
           </div>
           <div class="summary-row">
             <span class="summary-key">คำแนะนำ</span>
-            <span class="summary-val rec">{{ result?.recommendation ?? '-' }}</span>
+            <span class="summary-val rec"
+              >{{ result?.recommendation ?? '-' }}</span
+            >
           </div>
         </div>
       </mat-card>
-
     </div>
   </div>
-
 </div>

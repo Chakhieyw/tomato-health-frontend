@@ -4,10 +4,10 @@ import { Auth } from '../services/auth';
 import { catchError, map, of } from 'rxjs';
 
 export const authGuard: CanActivateFn = () => {
-  const authService = inject(Auth);
+  const auth = inject(Auth);
   const router = inject(Router);
 
-  return authService.me().pipe(
+  return auth.me().pipe(
     map(() => true),
     catchError(() => {
       router.navigate(['/login']);

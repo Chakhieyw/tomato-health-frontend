@@ -1,212 +1,206 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&display=swap');
 
+// ─── TOKENS ──────────────────────────────────────────────
+$surface:     #f2f7f0;
+$card-bg:     #ffffff;
+$border:      #d4e6cc;
+$accent:      #2d6a1e;
+$accent-lt:   #e8f5e2;
+$text-main:   #1a3a1a;
+$text-muted:  #5a8a52;
+$radius-card: 28px;
 
-html, body {
-  margin: 0;
-  padding: 0;
-  background: #0d1f14;
-}
-
-
+// ─── PAGE ────────────────────────────────────────────────
 .login-page {
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #0d1f14;
+  background: $surface;
   background-image:
-    radial-gradient(ellipse 80% 60% at 20% 80%, rgba(34, 197, 94, 0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 80% at 80% 20%, rgba(20, 83, 45, 0.18) 0%, transparent 55%);
+    radial-gradient(ellipse 70% 50% at 10% 90%, rgba(45,106,30,.08) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 70% at 90% 10%, rgba(34,197,94,.06) 0%, transparent 55%);
   font-family: 'DM Sans', sans-serif;
   position: relative;
   overflow: hidden;
 }
 
-/* decorative noise grain overlay */
-.login-page::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+// ─── DECORATIVE LEAVES ───────────────────────────────────
+.leaf {
+  position: absolute;
+  border-radius: 50% 0;
+  opacity: .07;
   pointer-events: none;
-  z-index: 0;
-  opacity: 0.5;
+}
+.leaf-1 {
+  width: 320px; height: 320px;
+  background: #2d6a1e;
+  top: -100px; left: -100px;
+  transform: rotate(25deg);
+}
+.leaf-2 {
+  width: 240px; height: 240px;
+  background: #22c55e;
+  bottom: -80px; right: -80px;
+  transform: rotate(200deg);
 }
 
-/* ===========================
-   CARD
-   =========================== */
+// ─── CARD ────────────────────────────────────────────────
 .login-card {
   position: relative;
   z-index: 1;
-  width: 400px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-radius: 28px;
+  width: 420px;
+  background: $card-bg;
+  border: 1px solid $border;
+  border-radius: $radius-card;
   padding: 44px 40px 40px;
   box-shadow:
-    0 0 0 1px rgba(34, 197, 94, 0.08),
-    0 40px 80px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    0 2px 0 #fff inset,
+    0 20px 60px rgba(45,106,30,.12),
+    0 4px 16px rgba(0,0,0,.06);
+  animation: fadeUp .45s cubic-bezier(.16,1,.3,1) both;
 }
 
 @keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(24px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  from { opacity: 0; transform: translateY(20px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* ===========================
-   HEADER
-   =========================== */
+// ─── HEADER ──────────────────────────────────────────────
 .login-header {
   text-align: center;
-  margin-bottom: 36px;
+  margin-bottom: 32px;
+
+  .logo {
+    width: 80px; height: 80px;
+    margin: 0 auto 14px;
+    display: flex; align-items: center; justify-content: center;
+    filter: drop-shadow(0 4px 12px rgba(45,106,30,.25));
+    svg { width: 80px; height: 80px; }
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px; font-weight: 700;
+    color: $text-main;
+    letter-spacing: -.3px; margin: 0 0 6px;
+  }
+
+  p {
+    font-size: 13px;
+    color: $text-muted;
+    margin: 0;
+  }
 }
 
-.logo {
-  width: 68px;
-  height: 68px;
-  margin: 0 auto 16px;
-  filter: drop-shadow(0 0 16px rgba(34, 197, 94, 0.4));
-}
-
-.logo svg {
-  width: 100%;
-  height: 100%;
-}
-
-.login-header h2 {
-  font-family: 'Playfair Display', serif;
-  font-size: 26px;
-  font-weight: 700;
-  color: #f0fdf4;
-  letter-spacing: -0.3px;
-  margin-bottom: 6px;
-}
-
-.login-header p {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.4);
-  font-weight: 400;
-}
-
-/* ===========================
-   FORM
-   =========================== */
+// ─── FORM ────────────────────────────────────────────────
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 6px;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
+.full-width { width: 100%; }
 
-.form-group label {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.45);
-  margin-bottom: 8px;
-}
+// ─── MAT FORM FIELD OVERRIDE ─────────────────────────────
+::ng-deep .login-form {
 
-.form-group input {
-  padding: 14px 18px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.06);
-  color: #f0fdf4;
-  font-size: 15px;
-  font-family: 'DM Sans', sans-serif;
-  outline: none;
-  transition: all 0.2s ease;
-
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.2);
+  .mat-mdc-form-field {
+    // ลบ background ออกจาก outline parts เพื่อไม่ให้ทับข้อความ
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: $border !important;
+      // ❌ ไม่ใส่ background ที่นี่
+    }
+    &:hover .mdc-notched-outline__leading,
+    &:hover .mdc-notched-outline__notch,
+    &:hover .mdc-notched-outline__trailing {
+      border-color: rgba(45,106,30,.45) !important;
+    }
   }
+
+  // ✅ focus → เส้นขอบและ label เขียว
+  .mat-mdc-form-field.mat-focused {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: $accent !important;
+      border-width: 2px !important;
+    }
+    .mdc-floating-label { color: $accent !important; }
+    .mat-icon[matPrefix] { color: $accent !important; }
+  }
+
+  .mdc-floating-label,
+  .mat-mdc-floating-label { color: $text-muted !important; }
+
+  // ✅ fix ตัวอักษรไม่แสดง
+  .mat-mdc-input-element,
+  input.mat-mdc-input-element,
+  input.mdc-text-field__input {
+    color: $text-main !important;
+    -webkit-text-fill-color: $text-main !important;
+    caret-color: $accent !important;
+    opacity: 1 !important;
+    &::placeholder { color: #b0ccaa !important; }
+  }
+
+  .mat-icon[matPrefix] { color: rgba(45,106,30,.55); margin-right: 6px; font-size: 20px; }
+  .mat-icon-button mat-icon { color: $text-muted; }
 }
 
-.form-group input:focus {
-  border-color: rgba(34, 197, 94, 0.5);
-  background: rgba(34, 197, 94, 0.06);
-  box-shadow:
-    0 0 0 3px rgba(34, 197, 94, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-}
-
-/* ===========================
-   ERROR
-   =========================== */
-.error {
-  margin-top: -6px;
+// ─── ERROR ───────────────────────────────────────────────
+.error-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 12px 16px;
   border-radius: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
   font-size: 13px;
   font-weight: 500;
-  color: #fca5a5;
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  text-align: center;
+  margin-top: 4px;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; color: #dc2626; }
 }
 
-/* ===========================
-   BUTTON
-   =========================== */
+// ─── BUTTON ──────────────────────────────────────────────
 .login-btn {
-  margin-top: 6px;
-  padding: 16px;
-  border-radius: 16px;
-  border: none;
-  background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
-  color: #ffffff;
-  font-size: 15px;
-  font-weight: 600;
-  font-family: 'DM Sans', sans-serif;
-  letter-spacing: 0.2px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 20px rgba(22, 163, 74, 0.35);
-  position: relative;
-  overflow: hidden;
+  margin-top: 10px !important;
+  height: 52px !important;
+  border-radius: 16px !important;
+  border: none !important;
+  background: linear-gradient(135deg, #1a4d0f 0%, #2d6a1e 50%, #3d8a28 100%) !important;
+  color: #fff !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  letter-spacing: .2px !important;
+  box-shadow: 0 4px 20px rgba(45,106,30,.3) !important;
+  transition: all .2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  width: 100% !important;
 
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%);
-    opacity: 0;
-    transition: opacity 0.2s;
+  mat-icon { font-size: 20px; width: 20px; height: 20px; }
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 10px 28px rgba(45,106,30,.4) !important;
+  }
+  &:active { transform: scale(.97) !important; }
+  &:disabled {
+    background: linear-gradient(135deg, #3d6e35, #4a8a40) !important;
+    opacity: .55 !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
   }
 }
 
-.login-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(22, 163, 74, 0.45);
-
-  &::after {
-    opacity: 1;
-  }
-}
-
-.login-btn:active {
-  transform: scale(0.97);
-}
-
-.login-btn:disabled {
-  background: linear-gradient(135deg, #166534 0%, #15803d 100%);
-  opacity: 0.6;
-  cursor: not-allowed;
-  box-shadow: none;
+.btn-spinner {
+  ::ng-deep circle { stroke: #fff !important; }
 }
