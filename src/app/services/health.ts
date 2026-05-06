@@ -10,14 +10,21 @@ export class Health {
 
   constructor(private http: HttpClient) {}
 
-  // 🔥 กัน cache ด้วย timestamp
   getLatestAIResult(): Observable<any> {
     return this.http.get(`${this.baseUrl}/ai-result/latest?t=${Date.now()}`, {
       withCredentials: true,
     });
   }
 
-  // 🔥 กัน cache ด้วย timestamp
+  getLatestAIResultForce(): Observable<any> {
+    return this.http.get(
+      `${this.baseUrl}/ai-result/latest?force=true&t=${Date.now()}`,
+      {
+        withCredentials: true,
+      },
+    );
+  }
+
   getLatestImage(): Observable<any> {
     return this.http.get(`${this.baseUrl}/images/latest?t=${Date.now()}`);
   }

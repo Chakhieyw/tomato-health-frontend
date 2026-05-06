@@ -8,7 +8,7 @@
     <div class="header-right">
       <span class="countdown-label" *ngIf="!loading">
         <mat-icon>update</mat-icon>
-        อัพเดทใน {{ nextRefreshIn }}
+        อัพเดทใน {{ nextRefreshDisplay }}
       </span>
       <button
         mat-stroked-button
@@ -20,6 +20,59 @@
         <mat-icon [class.spin]="loading">refresh</mat-icon>
         {{ loading ? 'กำลังโหลด...' : 'รีเฟรช' }}
       </button>
+
+      <!-- NOTIFICATION BELL -->
+      <button
+        mat-icon-button
+        class="notif-btn"
+        [matMenuTriggerFor]="notifMenu"
+        [matTooltip]="'การแจ้งเตือน'"
+      >
+        <mat-icon>notifications</mat-icon>
+        <span class="notif-badge" *ngIf="unreadCount > 0"
+          >{{ unreadCount }}</span
+        >
+      </button>
+
+      <mat-menu #notifMenu="matMenu" class="notif-menu">
+        <div class="notif-header" (click)="$event.stopPropagation()">
+          <span>การแจ้งเตือน</span>
+          <button
+            mat-button
+            class="mark-all-btn"
+            (click)="markAllRead()"
+            *ngIf="notifications.length > 0"
+          >
+            อ่านทั้งหมด
+          </button>
+        </div>
+        <div
+          class="notif-empty"
+          *ngIf="notifications.length === 0"
+          (click)="$event.stopPropagation()"
+        >
+          <mat-icon>notifications_none</mat-icon>
+          <span>ไม่มีการแจ้งเตือน</span>
+        </div>
+        <div
+          *ngFor="let n of notifications"
+          class="notif-item"
+          [class.unread]="!n.read"
+          (click)="markRead(n); $event.stopPropagation()"
+        >
+          <div
+            class="notif-dot"
+            [class.disease]="n.type === 'disease'"
+            [class.healthy]="n.type === 'healthy'"
+          ></div>
+          <div class="notif-content">
+            <div class="notif-title">{{ n.title }}</div>
+            <div class="notif-msg">{{ n.message }}</div>
+            <div class="notif-time">{{ n.time }}</div>
+          </div>
+        </div>
+      </mat-menu>
+
       <div class="status-chip" [ngClass]="loading ? 'scanning' : 'live'">
         <span class="status-dot"></span>
         {{ loading ? 'Scanning...' : 'Live' }}
@@ -34,6 +87,22 @@
         ออกจากระบบ
       </button>
     </div>
+  </div>
+
+  <!-- ALERT BANNER เมื่อตรวจพบโรค -->
+  <div
+    class="alert-banner"
+    *ngIf="result && result.disease_name !== 'Healthy'"
+    [@slideDown]
+  >
+    <mat-icon>warning</mat-icon>
+    <div class="alert-text">
+      <strong>ตรวจพบโรค: {{ result.disease_name }}</strong>
+      <span>{{ result.recommendation }}</span>
+    </div>
+    <button mat-icon-button (click)="dismissBanner()">
+      <mat-icon>close</mat-icon>
+    </button>
   </div>
 
   <!-- MAIN GRID -->

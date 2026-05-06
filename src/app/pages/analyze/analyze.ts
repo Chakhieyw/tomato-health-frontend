@@ -1,16 +1,25 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { Health } from '../../services/health';
 import { Auth } from '../../services/auth';
+import { Router } from '@angular/router';
 
 import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatMenuModule } from '@angular/material/menu';
 
-const AUTO_REFRESH_MS = 30 * 60 * 1000; // 30 นาที
+export interface Notification {
+  id: number;
+  type: 'disease' | 'healthy';
+  title: string;
+  message: string;
+  time: string;
+  read: boolean;
+}
 
 @Component({
   selector: 'app-analyze',
@@ -18,27 +27,48 @@ const AUTO_REFRESH_MS = 30 * 60 * 1000; // 30 นาที
   imports: [
     CommonModule,
     MatCardModule,
+    MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatButtonModule,
     MatTooltipModule,
+    MatMenuModule,
   ],
   templateUrl: './analyze.html',
   styleUrls: ['./analyze.scss'],
+  animations: [
+    trigger('slideDown', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(-10px)' }),
+        animate(
+          '300ms ease',
+          style({ opacity: 1, transform: 'translateY(0)' }),
+        ),
+      ]),
+      transition(':leave', [
+        animate(
+          '200ms ease',
+          style({ opacity: 0, transform: 'translateY(-10px)' }),
+        ),
+      ]),
+    ]),
+  ],
 })
 export class Analyze implements OnInit, OnDestroy {
-  imageUrl: string | null = null;
+  imageUrl: any;
   result: any;
   loading = true;
 
   date = '';
   time = '';
   scanTime = '-';
+  nextRefreshIn = 30 * 60;
 
-  nextRefreshIn = '';
-  private autoRefreshTimer: any;
-  private countdownTimer: any;
-  private nextRefreshAt = 0;
+  notifications: Notification[] = [];
+  showBanner = true;
+  private lastDiseaseId: number | null = null;
+  private notifIdCounter = 0;
+  private intervalId: any;
+  private countdownId: any;
 
   constructor(
     private api: Health,
@@ -46,86 +76,125 @@ export class Analyze implements OnInit, OnDestroy {
     private router: Router,
   ) {}
 
-  get resultThemeClass(): string {
-    const name = this.result?.disease_name?.toLowerCase() ?? '';
-    return name === 'healthy' ? 'healthy' : 'disease';
+  get unreadCount() {
+    return this.notifications.filter((n) => !n.read).length;
+  }
+
+  get resultThemeClass() {
+    return this.result?.disease_name?.toLowerCase() === 'healthy'
+      ? 'healthy'
+      : 'disease';
+  }
+
+  get nextRefreshDisplay(): string {
+    const m = Math.floor(this.nextRefreshIn / 60);
+    const s = this.nextRefreshIn % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
   }
 
   ngOnInit(): void {
     this.loadData();
-    this.scheduleAutoRefresh();
-    this.startCountdown();
-  }
+    this.startAutoRefresh();
 
-  ngOnDestroy(): void {
-    clearTimeout(this.autoRefreshTimer);
-    clearInterval(this.countdownTimer);
-  }
-
-  manualRefresh(): void {
-    clearTimeout(this.autoRefreshTimer);
-    this.loadData();
-    this.scheduleAutoRefresh();
-  }
-
-  logout(): void {
-    clearTimeout(this.autoRefreshTimer);
-    clearInterval(this.countdownTimer);
-    this.auth.logout().subscribe({
-      next: () => this.router.navigate(['/login']),
-      error: () => this.router.navigate(['/login']),
-    });
-  }
-
-  private scheduleAutoRefresh(): void {
-    this.nextRefreshAt = Date.now() + AUTO_REFRESH_MS;
-    clearTimeout(this.autoRefreshTimer);
-    this.autoRefreshTimer = setTimeout(() => {
-      this.loadData();
-      this.scheduleAutoRefresh();
-    }, AUTO_REFRESH_MS);
-  }
-
-  private startCountdown(): void {
-    this.countdownTimer = setInterval(() => {
-      const remaining = Math.max(0, this.nextRefreshAt - Date.now());
-      const m = Math.floor(remaining / 60000);
-      const s = Math.floor((remaining % 60000) / 1000);
-      this.nextRefreshIn = `${m}:${s.toString().padStart(2, '0')}`;
+    this.countdownId = setInterval(() => {
+      if (this.nextRefreshIn > 0) this.nextRefreshIn--;
     }, 1000);
   }
 
-  loadData(): void {
+  ngOnDestroy(): void {
+    clearInterval(this.intervalId);
+    clearInterval(this.countdownId);
+  }
+
+  private startAutoRefresh(): void {
+    clearInterval(this.intervalId);
+    this.intervalId = setInterval(
+      () => {
+        this.loadData();
+        this.nextRefreshIn = 30 * 60;
+      },
+      30 * 60 * 1000,
+    );
+  }
+
+  loadData() {
     const start = Date.now();
     this.loading = true;
 
-    this.api.getLatestImage().subscribe({
-      next: (img: any) => {
-        this.imageUrl = img?.image_url ?? null;
-      },
+    this.api.getLatestImage().subscribe((img: any) => {
+      this.imageUrl = img?.image_url ?? null;
     });
 
-    this.api.getLatestAIResult().subscribe({
-      next: (res: any) => {
-        this.result = res;
+    this.api.getLatestAIResult().subscribe((res: any) => {
+      this.handleResult(res, Date.now() - start);
+    });
+  }
 
-        const createdAt = res?.created_at
-          ? new Date(res.created_at)
-          : new Date();
-        const now = new Date();
-        this.date = now.toLocaleDateString('th-TH', {
-          year: 'numeric',
-          month: '2-digit',
-          day: 'numeric',
-        });
-        this.time = now.toLocaleTimeString('th-TH');
+  manualRefresh() {
+    const start = Date.now();
+    this.loading = true;
 
-        this.scanTime = Date.now() - start + ' ms';
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-      },
+    this.api.getLatestImage().subscribe((img: any) => {
+      this.imageUrl = img?.image_url ?? null;
+    });
+
+    // force=true → backend ส่ง email แม้ id จะซ้ำ
+    this.api.getLatestAIResultForce().subscribe((res: any) => {
+      this.handleResult(res, Date.now() - start);
+    });
+
+    this.nextRefreshIn = 30 * 60;
+    this.startAutoRefresh();
+  }
+
+  private handleResult(res: any, elapsed: number) {
+    this.result = res;
+
+    const now = new Date();
+    this.date = now.toLocaleDateString('th-TH', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+    this.time = now.toLocaleTimeString('th-TH');
+    this.scanTime = elapsed + ' ms';
+    this.loading = false;
+
+    if (res?.id && res.id !== this.lastDiseaseId) {
+      this.lastDiseaseId = res.id;
+      this.showBanner = true;
+
+      const isDisease = res.disease_name !== 'Healthy';
+      this.notifications.unshift({
+        id: ++this.notifIdCounter,
+        type: isDisease ? 'disease' : 'healthy',
+        title: isDisease ? `ตรวจพบ: ${res.disease_name}` : 'มะเขือเทศสุขภาพดี',
+        message: res.recommendation ?? '',
+        time: `${this.date} ${this.time}`,
+        read: false,
+      });
+
+      if (this.notifications.length > 20) {
+        this.notifications = this.notifications.slice(0, 20);
+      }
+    }
+  }
+
+  markRead(n: Notification) {
+    n.read = true;
+  }
+
+  markAllRead() {
+    this.notifications.forEach((n) => (n.read = true));
+  }
+
+  dismissBanner() {
+    this.showBanner = false;
+  }
+
+  logout() {
+    this.auth.logout().subscribe(() => {
+      this.router.navigate(['/login']);
     });
   }
 }
